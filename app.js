@@ -75,7 +75,16 @@ async function fetchWeatherData(city) {
         toggleSkeletons(false);    
 
     } catch (error) {
-
+        console.error("Network failed:", error);
+        
+        const weatherMain = document.querySelector('.weather-main');
+        weatherMain.innerHTML = `
+            <div style="background: #ffcccc; color: #cc0000; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                <p>Network error! Please check your internet connection.</p>
+                <button onclick="fetchWeatherData('${city}')" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Retry</button>
+            </div>
+        `;
+        toggleSkeletons(false);
     }
 }
 
