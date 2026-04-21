@@ -41,10 +41,39 @@ async function fetchWeatherData(city) {
         const resolvedCityName = geoData.results[0].name;
     
         const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
-        
         const weatherResponse = await fetch(weatherUrl);
         const weatherData = await weatherResponse.json();
-    
+
+        document.getElementById('cityName').textContent = resolvedCityName;
+        
+        const current = weatherData.current_weather;
+        const condition = weatherLookup[current.weathercode] || { desc: "Unknown", icon: "❓" };
+        
+        document.getElementById('temperature').textContent = `${current.temperature}°C`;
+        document.getElementById('weatherDesc').textContent = `${condition.icon} ${condition.desc}`;
+        document.getElementById('humidity').textContent = `${weatherData.hourly.relativehumidity_2m[0]}%`;
+        document.getElementById('windSpeed').textContent = `${current.windspeed} km/h`;
+
+        const forecastCards = document.querySelectorAll('.forecast-card');
+        const dailyData = weatherData.daily;
+
+        forecastCards.forEach((card, index) => {
+            if (index < 7) { 
+                const date = new Date(dailyData.time[index]);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                
+                const dailyCondition = weatherLookup[dailyData.weathercode[index]] || { desc: "Unknown", icon: "❓" };
+                const high = Math.round(dailyData.temperature_2m_max[index]);
+                const low = Math.round(dailyData.temperature_2m_min[index]);
+
+                card.querySelector('.day-name').textContent = dayName;
+                card.querySelector('.weather-icon').textContent = dailyCondition.icon;
+                card.querySelector('.high-low').textContent = `H: ${high}° L: ${low}°`;
+            }
+        });
+        
+        toggleSkeletons(false);    
+
     } catch (error) {
 
     }
