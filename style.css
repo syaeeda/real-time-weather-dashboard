@@ -8,7 +8,7 @@ body {
 }
 
 .dashboard-container {
-	max-width: 900px;
+	max-width: 1200px;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
@@ -68,7 +68,8 @@ body {
 	display: flex;
 	justify-content: space-between;
 	gap: 10px;
-	overflow-x: auto;
+	flex-wrap: wrap;
+	/*overflow-x: auto;*/
 }
 
 .forecast-card {
@@ -118,7 +119,7 @@ body {
 }
 
 .chip {
-	background-color: #e0e0e0;
+	background-color: #e0dfc1;
 	padding: 6px 14px;
 	border-radius: 16px;
 	font-size: 14px;
