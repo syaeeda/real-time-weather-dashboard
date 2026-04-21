@@ -40,8 +40,13 @@ async function fetchWeatherData(city) {
         const lon = geoData.results[0].longitude;
         const resolvedCityName = geoData.results[0].name;
     
-    } catch (error) {
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
         
+        const weatherResponse = await fetch(weatherUrl);
+        const weatherData = await weatherResponse.json();
+    
+    } catch (error) {
+
     }
 }
 
