@@ -1,3 +1,22 @@
+const weatherLookup = {
+    0: { desc: "Clear sky", icon: "☀️" },
+    1: { desc: "Mainly clear", icon: "🌤️" },
+    2: { desc: "Partly cloudy", icon: "⛅" },
+    3: { desc: "Overcast", icon: "☁️" },
+    45: { desc: "Fog", icon: "🌫️" },
+    48: { desc: "Depositing rime fog", icon: "🌫️" },
+    51: { desc: "Light drizzle", icon: "🌧️" },
+    53: { desc: "Moderate drizzle", icon: "🌧️" },
+    55: { desc: "Dense drizzle", icon: "🌧️" },
+    61: { desc: "Slight rain", icon: "🌧️" },
+    63: { desc: "Moderate rain", icon: "🌧️" },
+    65: { desc: "Heavy rain", icon: "🌧️" },
+    71: { desc: "Slight snow", icon: "❄️" },
+    73: { desc: "Moderate snow", icon: "❄️" },
+    75: { desc: "Heavy snow", icon: "❄️" },
+    95: { desc: "Thunderstorm", icon: "⛈️" }
+};
+
 function toggleSkeletons(show) {
     const skeletonElements = document.querySelectorAll('.sklt-text, .sklt-icon');
     skeletonElements.forEach(el => {
