@@ -91,7 +91,26 @@ async function fetchWeatherData(city) {
             }
         });
         
-        toggleSkeletons(false);    
+        toggleSkeletons(false);
+
+        const cityTimezone = weatherData.timezone; 
+
+        $.getJSON(`https://timeapi.io/api/Time/current/zone?timeZone=${cityTimezone}`)
+        //$.getJSON(`https://worldtimeapi.org/api/timezone/${cityTimezone}`)
+            .done(function(timeData) {
+                const localDate = new Date(timeData.datetime);
+                const formattedTime = localDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                $('#time').text(formattedTime);
+            })  
+            .fail(function() {
+                console.warn("World TimeAPI failed. Falling back to browser time.");
+                const browserTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                $('#time').text(browserTime + " (Local Fallback)");
+            })
+            .always(function() {
+                const timestamp = new Date().toISOString();
+                console.log("Time request completed at:", timestamp);
+            }); 
 
     } catch (error) {
         console.error("Network failed:", error);
