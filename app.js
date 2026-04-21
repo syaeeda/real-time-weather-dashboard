@@ -262,4 +262,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     renderRecentSearches();
-}
+});
