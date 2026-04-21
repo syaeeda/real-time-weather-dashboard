@@ -8,14 +8,34 @@ const weatherLookup = {
     51: { desc: "Light drizzle", icon: "🌧️" },
     53: { desc: "Moderate drizzle", icon: "🌧️" },
     55: { desc: "Dense drizzle", icon: "🌧️" },
+    56: { desc: "Light freezing drizzle", icon: "🌧️❄️" },
+    57: { desc: "Dense freezing drizzle", icon: "🌧️❄️" },
     61: { desc: "Slight rain", icon: "🌧️" },
     63: { desc: "Moderate rain", icon: "🌧️" },
     65: { desc: "Heavy rain", icon: "🌧️" },
+    66: { desc: "Light freezing rain", icon: "🌧️❄️" },
+    67: { desc: "Heavy freezing rain", icon: "🌧️❄️" },
     71: { desc: "Slight snow", icon: "❄️" },
     73: { desc: "Moderate snow", icon: "❄️" },
     75: { desc: "Heavy snow", icon: "❄️" },
-    95: { desc: "Thunderstorm", icon: "⛈️" }
+    77: { desc: "Snow grains", icon: "❄️" },
+    80: { desc: "Slight rain showers", icon: "🌦️" },
+    81: { desc: "Moderate rain showers", icon: "🌦️" },
+    82: { desc: "Violent rain showers", icon: "⛈️" },
+    85: { desc: "Slight snow showers", icon: "🌨️" },
+    86: { desc: "Heavy snow showers", icon: "🌨️" },
+    95: { desc: "Thunderstorm", icon: "⛈️" },
+    96: { desc: "Thunderstorm with slight hail", icon: "⛈️🧊" },
+    99: { desc: "Thunderstorm with heavy hail", icon: "⛈️🧊" }
 };
+
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const unitToggleBtn = document.getElementById('unitToggle');
+
+let isCelsius = true;
+let globalWeatherData = null; 
+let debounceTimer;
 
 function toggleSkeletons(show) {
     const skeletonElements = document.querySelectorAll('.skeleton-text, .skeleton-icon');
@@ -40,14 +60,68 @@ function showError(message) {
     toggleSkeletons(false); 
 }
 
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
+function convertTemp(celsiusValue) {
+    if (isCelsius) return Math.round(celsiusValue);
+    return Math.round((celsiusValue * 9/5) + 32); 
+}
+
+function updateTemperatureUI() {
+    if (!globalWeatherData) return;
+    const unit = isCelsius ? "°C" : "°F";
+    
+    const currentTemp = convertTemp(globalWeatherData.current_weather.temperature);
+    document.getElementById('temperature').textContent = `${currentTemp}${unit}`;
+
+    const forecastCards = document.querySelectorAll('.forecast-card');
+    const dailyData = globalWeatherData.daily;
+
+    forecastCards.forEach((card, index) => {
+        if (index < 7) {
+            const high = convertTemp(dailyData.temperature_2m_max[index]);
+            const low = convertTemp(dailyData.temperature_2m_min[index]);
+            card.querySelector('.high-low').textContent = `H: ${high}° L: ${low}°`;
+        }
+    });
+}
+
+function saveRecentSearch(city) {
+    let searches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+    searches = searches.filter(s => s.toLowerCase() !== city.toLowerCase());
+    searches.unshift(city);
+    if (searches.length > 5) searches.pop();
+    
+    localStorage.setItem('recentSearches', JSON.stringify(searches));
+    renderRecentSearches();
+}
+
+function renderRecentSearches() {
+    const container = document.getElementById('recentSearches');
+    container.innerHTML = ''; 
+    let searches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+    
+    searches.forEach(city => {
+        const chip = document.createElement('span');
+        chip.classList.add('chip');
+        chip.textContent = city;
+        chip.onclick = () => {
+            searchInput.value = city;
+            fetchWeatherData(city);
+        };
+        container.appendChild(chip);
+    });
+}
 
 async function fetchWeatherData(city) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
+        const weatherMain = document.querySelector('.weather-main');
+        weatherMain.innerHTML = `
+            <p id="temperature" class="skeleton skeleton-text large-text">--°C</p>
+            <p id="weatherDesc" class="skeleton skeleton-text">Description</p>
+        `;
+
         toggleSkeletons(true);
         document.getElementById('cityName').textContent = city;
         $('#time').text('--:--');
@@ -74,6 +148,10 @@ async function fetchWeatherData(city) {
         const weatherData = await weatherResponse.json();
         clearTimeout(timeoutId);
 
+        globalWeatherData = weatherData;        
+        saveRecentSearch(resolvedCityName);     
+        updateTemperatureUI();
+
         document.getElementById('cityName').textContent = resolvedCityName;
         
         const current = weatherData.current_weather;
@@ -98,7 +176,7 @@ async function fetchWeatherData(city) {
 
                 card.querySelector('.day-name').textContent = dayName;
                 card.querySelector('.weather-icon').textContent = dailyCondition.icon;
-                card.querySelector('.high-low').textContent = `H: ${high}° L: ${low}°`;
+                //card.querySelector('.high-low').textContent = `H: ${high}° L: ${low}°`;
             }
         });
         
@@ -136,8 +214,6 @@ async function fetchWeatherData(city) {
     }
 }
 
-let debounceTimer;
-
 searchInput.addEventListener('input', () => {
     clearTimeout(debounceTimer); 
     
@@ -163,3 +239,10 @@ searchBtn.addEventListener('click', () => {
      
     fetchWeatherData(city);
 });
+
+unitToggleBtn.addEventListener('click', () => {
+    isCelsius = !isCelsius; 
+    updateTemperatureUI();  
+});
+
+renderRecentSearches();
