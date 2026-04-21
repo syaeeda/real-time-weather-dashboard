@@ -128,8 +128,12 @@ async function fetchWeatherData(city) {
 
 searchBtn.addEventListener('click', () => {
     const city = searchInput.value.trim();
-    if (city) {
-        fetchWeatherData(city);
+    if (city.length === 0) {
+        return; 
+    } else if (city.length < 2) {
+        showError("Please enter a city name with at least 2 characters.");
+        return;
     }
+     
+    fetchWeatherData(city);
 });
-
