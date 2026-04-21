@@ -18,12 +18,12 @@ const weatherLookup = {
 };
 
 function toggleSkeletons(show) {
-    const skeletonElements = document.querySelectorAll('.sklt-text, .sklt-icon');
+    const skeletonElements = document.querySelectorAll('.skeleton-text, .skeleton-icon');
     skeletonElements.forEach(el => {
         if (show) {
-            el.classList.add('sklt');
+            el.classList.add('skeleton');
         } else {
-            el.classList.remove('sklt');
+            el.classList.remove('skeleton');
         }
     });
 }
