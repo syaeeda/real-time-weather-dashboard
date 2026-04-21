@@ -30,6 +30,7 @@ function toggleSkeletons(show) {
 
 function showError(message) {
     const weatherMain = document.querySelector('.weather-main');
+    const currentCity = searchInput.value || '';
     weatherMain.innerHTML = `
         <div class="error-banner" style="background: #ffcccc; color: #cc0000; padding: 10px; border-radius: 6px; margin-top: 10px;">
             <p>${message}</p>
@@ -43,11 +44,18 @@ const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 
 async function fetchWeatherData(city) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
         toggleSkeletons(true);
         document.getElementById('cityName').textContent = city;
+        $('#time').text('--:--');
 
+        const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`;
         const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`)
+        
+        if (!geoResponse.ok) throw new Error(`HTTP Error: ${geoResponse.status} on Geocoding API`);
         const geoData = await geoResponse.json();
 
         if(!geoData.results || geoData.results.length === 0) {
@@ -61,7 +69,10 @@ async function fetchWeatherData(city) {
     
         const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
         const weatherResponse = await fetch(weatherUrl);
+        
+        if (!weatherResponse.ok) throw new Error(`HTTP Error: ${weatherResponse.status} on Weather API`);
         const weatherData = await weatherResponse.json();
+        clearTimeout(timeoutId);
 
         document.getElementById('cityName').textContent = resolvedCityName;
         
@@ -98,7 +109,7 @@ async function fetchWeatherData(city) {
         $.getJSON(`https://timeapi.io/api/Time/current/zone?timeZone=${cityTimezone}`)
         //$.getJSON(`https://worldtimeapi.org/api/timezone/${cityTimezone}`)
             .done(function(timeData) {
-                const localDate = new Date(timeData.datetime);
+                const localDate = new Date(timeData.dateTime);
                 const formattedTime = localDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 $('#time').text(formattedTime);
             })  
@@ -113,18 +124,33 @@ async function fetchWeatherData(city) {
             }); 
 
     } catch (error) {
-        console.error("Network failed:", error);
+        clearTimeout(timeoutId);
+
+        console.error("Fetch failed:", error);
         
-        const weatherMain = document.querySelector('.weather-main');
-        weatherMain.innerHTML = `
-            <div style="background: #ffcccc; color: #cc0000; padding: 15px; border-radius: 6px; margin-top: 10px;">
-                <p>Network error! Please check your internet connection.</p>
-                <button onclick="fetchWeatherData('${city}')" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Retry</button>
-            </div>
-        `;
-        toggleSkeletons(false);
+        if (error.name === 'AbortError') {
+            showError("Request timed out. The server took longer than 10 seconds to respond.");
+        } else {
+            showError(error.message || "Network error! Please check your internet connection.");
+        }
     }
 }
+
+let debounceTimer;
+
+searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer); 
+    
+    debounceTimer = setTimeout(() => {
+        const city = searchInput.value.trim();
+        
+        if (city.length >= 2) {
+            fetchWeatherData(city);
+        } else if (city.length === 1) {
+            showError("Please enter a city name with at least 2 characters.");
+        }
+    }, 500);
+});
 
 searchBtn.addEventListener('click', () => {
     const city = searchInput.value.trim();
