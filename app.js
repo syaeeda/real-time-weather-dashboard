@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
         51: { desc: "Light drizzle", icon: "🌧️" },
         53: { desc: "Moderate drizzle", icon: "🌧️" },
         55: { desc: "Dense drizzle", icon: "🌧️" },
-        56: { desc: "Light freezing drizzle", icon: "🌧️❄️" },
-        57: { desc: "Dense freezing drizzle", icon: "🌧️❄️" },
+        56: { desc: "Light freezing drizzle", icon: "🌧️" },
+        57: { desc: "Dense freezing drizzle", icon: "❄️" },
         61: { desc: "Slight rain", icon: "🌧️" },
         63: { desc: "Moderate rain", icon: "🌧️" },
         65: { desc: "Heavy rain", icon: "🌧️" },
-        66: { desc: "Light freezing rain", icon: "🌧️❄️" },
-        67: { desc: "Heavy freezing rain", icon: "🌧️❄️" },
+        66: { desc: "Light freezing rain", icon: "🌧️" },
+        67: { desc: "Heavy freezing rain", icon: "❄️" },
         71: { desc: "Slight snow", icon: "❄️" },
         73: { desc: "Moderate snow", icon: "❄️" },
         75: { desc: "Heavy snow", icon: "❄️" },
@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
         85: { desc: "Slight snow showers", icon: "🌨️" },
         86: { desc: "Heavy snow showers", icon: "🌨️" },
         95: { desc: "Thunderstorm", icon: "⛈️" },
-        96: { desc: "Thunderstorm with slight hail", icon: "⛈️🧊" },
-        99: { desc: "Thunderstorm with heavy hail", icon: "⛈️🧊" }
+        96: { desc: "Thunderstorm with slight hail", icon: "⛈️" },
+        99: { desc: "Thunderstorm with heavy hail", icon: "🧊" }
     };
 
     // DOM elements
