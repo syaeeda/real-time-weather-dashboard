@@ -2,7 +2,6 @@ body {
     font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
     background: #fff8ec;
     color: #333333;
-    min-height: 100vh;
     margin: 0;
     padding: 20px;
     display: flex;
